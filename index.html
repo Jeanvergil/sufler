@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Суфлёр — умный помощник для таблеток</title>
+<style>
+:root{--bg:#EAF1F8;--card:#FFFFFF;--ink:#12263A;--mute:#4A5F73;--line:#D3DEE8;--soft:#F3F7FB;--ok:#1E7A3C;--warn:#B45309;--sun:#FFD84D;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0B1520;--card:#15263A;--ink:#F1F6FA;--mute:#A9BCCB;--line:#2A4058;--soft:#0F1E2E;--ok:#6FD48F;--warn:#F5B96B}}
+:root[data-theme="dark"]{--bg:#0B1520;--card:#15263A;--ink:#F1F6FA;--mute:#A9BCCB;--line:#2A4058;--soft:#0F1E2E;--ok:#6FD48F;--warn:#F5B96B}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:21px/1.45 "Atkinson Hyperlegible","Verdana","Segoe UI",sans-serif}
+.hero{background:linear-gradient(135deg,#0B6B6B 0%,#2E5BC4 60%,#6D3FC4 100%);color:#fff;padding:28px 16px 64px;border-radius:0 0 36px 36px}
+.hero>div{max-width:640px;margin:0 auto}
+.hero .em{font-size:52px;line-height:1}
+.hero h1{font-size:36px;margin:8px 0 2px}
+.hero p{margin:0;opacity:.95}
+.hero .dt{display:inline-block;margin-top:12px;background:rgba(255,255,255,.2);border-radius:999px;padding:4px 16px;font-weight:700;text-transform:capitalize}
+main{max-width:640px;margin:-40px auto 0;padding:0 16px 40px}
+.card{--ct:color-mix(in srgb,var(--c) 55%,var(--ink));background:var(--card);border:2px solid var(--line);border-top:10px solid var(--c);border-radius:24px;padding:20px;margin-top:20px;box-shadow:0 8px 24px rgba(20,40,80,.12)}
+.c1{--c:#0B6B6B}.c2{--c:#1D4ED8}.c3{--c:#15803D}.c4{--c:#6D28D9}.c5{--c:#BE185D}
+h2{font-size:25px;margin:0 0 6px;color:var(--ct)}
+.lead{color:var(--mute);margin:0 0 6px}
+.time{font-size:60px;font-weight:700;line-height:1.05;color:var(--ct)}
+.pill{font-size:32px;font-weight:700;margin:8px 0 2px}
+.tag{display:inline-block;background:var(--sun);color:#12263A;font-weight:700;border-radius:999px;padding:4px 16px;margin:8px 0}
+.lab{font-weight:700;color:var(--ct)}
+button{font:inherit;font-weight:700;min-height:64px;border-radius:18px;border:3px solid var(--c);background:var(--card);color:var(--ct);padding:12px 20px;cursor:pointer;width:100%;margin-top:12px}
+button.main{background:var(--c);color:#fff}
+button:disabled{cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:4px solid var(--sun);outline-offset:3px}
+.row{display:flex;gap:12px}.row button{flex:1}
+ul{list-style:none;margin:0;padding:0}
+li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-bottom:2px solid var(--line)}
+li:last-child{border:0}
+li b{display:block}li small{color:var(--mute);font-size:18px}
+.st{font-weight:700;white-space:nowrap;border-radius:999px;padding:4px 14px;background:var(--soft);font-size:19px}
+.done{color:var(--ok)}.miss{color:var(--warn)}
+.msg{margin-top:14px;padding:14px 16px;border-radius:14px;background:var(--soft);border-left:8px solid var(--c)}
+.msg.alert{border-color:var(--warn)}
+.sw{display:flex;align-items:center;gap:14px;font-weight:700}
+.sw input{width:34px;height:34px;accent-color:var(--c)}
+.hide{display:none}
+.note{color:var(--mute);font-size:17px;margin-top:10px}
+img#ph{max-width:100%;border-radius:16px;margin-top:12px}
+label{display:block;font-weight:700;margin-top:14px}
+input[type=text],input[type=time],input[type=date],select{display:block;width:100%;font:inherit;min-height:60px;margin-top:6px;padding:10px 14px;border:3px solid var(--line);border-radius:14px;background:var(--soft);color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chips button{width:auto;min-height:52px;margin:0;padding:6px 16px;border-radius:999px;border-width:2px}
+.chips button[aria-pressed=true]{background:var(--c);color:#fff}
+.chips button.tm{background:var(--soft)}
+button.del{width:auto;min-height:48px;margin:0;padding:6px 14px;font-size:18px;border-color:var(--warn);color:var(--warn)}
+</style>
+</head>
+<body>
+<header class="hero"><div>
+  <div class="em">💊</div>
+  <h1>Суфлёр</h1>
+  <p id="greet"></p>
+  <span class="dt" id="date"></span>
+</div></header>
+<main>
+
+<section class="card c1" aria-live="polite">
+  <h2 id="nowTitle">⏰ Следующий приём</h2>
+  <div class="time" id="nowTime"></div>
+  <div class="pill" id="nowPill"></div>
+  <div id="nowDose"></div>
+  <span class="tag" id="nowMeal"></span>
+  <button class="main" id="speak">🔊 Прочитать вслух</button>
+  <div class="row"><button id="take">✔ Я принял</button><button id="skip">Пропустить</button></div>
+  <div class="msg hide" id="msg"></div>
+</section>
+
+<section class="card c2">
+  <h2>📷 Не уверены, какая это таблетка?</h2>
+  <p class="lead">Сфотографируйте упаковку или таблетку. Суфлёр назовёт лекарство и скажет, когда его пить.</p>
+  <button class="main" id="cam">📷 Сфотографировать</button>
+  <input type="file" accept="image/*" capture="environment" id="file" class="hide">
+  <img id="ph" alt="Ваше фото" class="hide">
+  <div class="msg hide" id="scan"></div>
+  <p class="note">В демо-версии распознавание условное: настоящий ИИ подключается к камере в приложении.</p>
+</section>
+
+<section class="card c3">
+  <h2>📅 План на сегодня</h2>
+  <ul id="plan"></ul>
+</section>
+
+<section class="card c4">
+  <h2>✏️ Мой график</h2>
+  <p class="lead">Напишите название, добавьте время (можно несколько). Дни и даты по желанию: если не выбирать, лекарство будет каждый день.</p>
+  <label>Название лекарства<input id="fn" type="text" placeholder="Например, Лизиноприл" autocomplete="off"></label>
+  <label>Дозировка (по желанию)<input id="fd" type="text" placeholder="1 таблетка, 10 мг" autocomplete="off"></label>
+  <label>Время приёма
+    <input id="ft" type="time"></label>
+  <button id="addt">＋ Добавить это время</button>
+  <div class="chips" id="tchips" aria-label="Выбранное время"></div>
+  <label>Когда пить<select id="fm"><option value="any">В любое время</option><option value="before">До еды</option><option value="after">После еды</option></select></label>
+  <div class="lab" style="margin-top:14px">По каким дням недели</div>
+  <div class="chips" id="dchips"></div>
+  <label>Пить с даты (по желанию)<input id="ff" type="date"></label>
+  <label>Пить до даты (по желанию)<input id="fto" type="date"></label>
+  <button class="main" id="add">＋ Добавить в график</button>
+  <div class="msg hide" id="fmsg"></div>
+  <h2 style="margin-top:26px">💼 Мои лекарства</h2>
+  <ul id="mine"></ul>
+</section>
+
+<section class="card c5">
+  <h2>👨‍👩‍👧 Семья</h2>
+  <label class="sw"><input type="checkbox" id="fam" checked> Сообщать детям, только если доза пропущена</label>
+  <p class="note" style="margin-bottom:0">Дочь Анна получит одно сообщение. Ежедневных звонков-напоминалок больше не нужно.</p>
+  <div class="msg alert hide" id="famMsg"></div>
+</section>
+</main>
+
+<script>
+var KEY="sufler-v3",MEAL={any:"Пить в любое время",before:"Пить до еды",after:"Пить после еды"},DN=["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+var state={list:[
+ {id:1,n:"Метформин",d:"1 таблетка, 500 мг",ts:["08:00","20:00"],m:"after",days:[],from:"",to:""},
+ {id:2,n:"Амлодипин",d:"1 таблетка, 5 мг",ts:["13:30"],m:"before",days:[],from:"",to:""},
+ {id:3,n:"Аторвастатин",d:"1 таблетка, 20 мг",ts:["19:00"],m:"after",days:[0,2,4],from:"",to:""}],log:{},nid:4};
+try{var s=JSON.parse(localStorage.getItem(KEY));if(s&&s.list)state=s}catch(e){}
+var pt=[],pd=[];
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+function $(i){return document.getElementById(i)}
+function esc(x){return String(x).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function today(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function fd(x){return x.slice(8)+"."+x.slice(5,7)}
+function period(m){var a=m.days.length?m.days.map(function(i){return DN[i]}).join(", "):"каждый день",b=m.from&&m.to?"с "+fd(m.from)+" по "+fd(m.to):m.from?"с "+fd(m.from):m.to?"до "+fd(m.to):"";return a+(b?" · "+b:"")}
+function doses(){var T=today(),wd=(new Date().getDay()+6)%7,out=[];
+  state.list.forEach(function(m){if((m.from&&m.from>T)||(m.to&&m.to<T))return;if(m.days.length&&m.days.indexOf(wd)<0)return;m.ts.forEach(function(t){out.push({m:m,t:t,k:T+"|"+m.id+"|"+t})})});
+  return out.sort(function(a,b){return a.t<b.t?-1:a.t>b.t?1:0})}
+function st(x){return state.log[x.k]||"wait"}
+function cur(){return doses().filter(function(x){return st(x)=="wait"})[0]||null}
+function say(t){try{speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang="ru-RU";u.rate=.85;speechSynthesis.speak(u)}catch(e){}}
+function show(el,h){var e=$(el);e.innerHTML=h;e.classList.remove("hide")}
+function full(m){return m.n+(m.d?". "+m.d:"")+". "+MEAL[m.m]}
+function chips(){$("tchips").innerHTML=pt.map(function(t){return '<button class="tm" data-t="'+t+'" aria-label="Убрать '+t+'">🕒 '+t+' ✕</button>'}).join("");
+  $("dchips").innerHTML=DN.map(function(n,i){return '<button data-d="'+i+'" aria-pressed="'+(pd.indexOf(i)>=0)+'">'+n+'</button>'}).join("")}
+function render(){
+  var h=new Date().getHours();$("greet").textContent=(h<5?"Доброй ночи":h<12?"Доброе утро":h<18?"Добрый день":"Добрый вечер")+"! Подскажу, что и когда принять.";
+  $("date").textContent=new Date().toLocaleDateString("ru-RU",{weekday:"long",day:"numeric",month:"long"});
+  var c=cur(),D=doses(),on=!!c;
+  if(on){$("nowTitle").textContent="⏰ Следующий приём";$("nowTime").textContent=c.t;$("nowPill").textContent=c.m.n;$("nowDose").textContent=c.m.d||"";$("nowMeal").textContent=MEAL[c.m.m]}
+  else{$("nowTitle").textContent=D.length?"🎉 На сегодня всё":"🌤 Сегодня приёмов нет";$("nowTime").textContent=D.length?"Готово ✔":"—";$("nowPill").textContent=D.length?"Все таблетки учтены":"Добавьте лекарство ниже";$("nowDose").textContent="";$("nowMeal").textContent="Хорошего дня!"}
+  ["speak","take","skip"].forEach(function(i){$(i).disabled=!on;$(i).style.opacity=on?1:.4});
+  var L={done:["✔ Принято","done"],miss:["Пропущено","miss"],wait:["Позже",""]};
+  $("plan").innerHTML=D.length?D.map(function(x){var k=st(x),l=L[k];if(k=="wait"&&c&&c.k==x.k)l=["⏰ Скоро",""];
+    return '<li><span><b>'+x.t+' — '+esc(x.m.n)+'</b><small>'+MEAL[x.m.m]+'</small></span><span class="st '+l[1]+'">'+l[0]+'</span></li>'}).join(""):"<li>На сегодня ничего не назначено.</li>";
+  $("mine").innerHTML=state.list.length?state.list.map(function(m){
+    return '<li><span><b>'+esc(m.n)+'</b><small>'+m.ts.join(", ")+' · '+(m.d?esc(m.d)+' · ':'')+MEAL[m.m]+' · '+period(m)+'</small></span><button class="del" data-id="'+m.id+'" aria-label="Удалить '+esc(m.n)+'">Удалить</button></li>'}).join(""):"<li>Список пуст.</li>";
+  chips()}
+function mark(k){var c=cur();if(!c)return null;state.log[c.k]=k;save();render();return c}
+$("speak").onclick=function(){var c=cur();if(!c)return;var t="Сейчас время принять "+full(c.m)+".";say(t);show("msg","🔊 "+esc(t))};
+$("take").onclick=function(){var c=mark("done");if(!c)return;var t="Отлично! "+c.m.n+" принят. Отмечено.";say(t);show("msg","✔ "+esc(t));$("famMsg").classList.add("hide")};
+$("skip").onclick=function(){var c=mark("miss");if(!c)return;say("Приём отмечен как пропущенный.");show("msg","Приём "+esc(c.m.n)+" пропущен.");
+  if($("fam").checked)show("famMsg","📩 Анне отправлено: «Мама пропустила приём: "+esc(c.m.n)+" в "+c.t+"».");else $("famMsg").classList.add("hide")};
+$("cam").onclick=function(){$("file").click()};
+$("file").onchange=function(e){var f=e.target.files[0];if(!f)return;
+  var r=new FileReader();r.onload=function(){$("ph").src=r.result;$("ph").classList.remove("hide")};r.readAsDataURL(f);
+  var x=cur()||doses()[0],m=x?x.m:state.list[0];if(!m){show("scan","Сначала добавьте лекарство в свой график.");return}
+  show("scan","<b>Распознано: "+esc(m.n)+"</b><br>"+(m.d?esc(m.d)+"<br>":"")+MEAL[m.m]+"<br>Приём: "+m.ts.join(", "));say("Это "+full(m)+". Приём: "+m.ts.join(", ")+".")};
+$("fam").onchange=function(){if(!this.checked)$("famMsg").classList.add("hide")};
+$("addt").onclick=function(){var t=$("ft").value;if(!t)return;if(pt.indexOf(t)<0){pt.push(t);pt.sort()}$("ft").value="";chips()};
+$("tchips").onclick=function(e){var t=e.target.getAttribute("data-t");if(!t)return;pt=pt.filter(function(x){return x!=t});chips()};
+$("dchips").onclick=function(e){var d=e.target.getAttribute("data-d");if(d===null)return;d=+d;var i=pd.indexOf(d);if(i<0)pd.push(d);else pd.splice(i,1);pd.sort();chips()};
+$("add").onclick=function(){
+  var n=$("fn").value.trim(),a=$("ff").value,b=$("fto").value,ts=pt.slice(),t=$("ft").value;
+  if(t&&ts.indexOf(t)<0)ts.push(t);ts.sort();
+  function err(x){show("fmsg",x);$("fmsg").className="msg alert"}
+  if(!n||!ts.length){err("Напишите название лекарства и добавьте хотя бы одно время.");return}
+  if(a&&b&&b<a){err("Дата окончания раньше даты начала. Проверьте даты.");return}
+  state.list.push({id:state.nid++,n:n,d:$("fd").value.trim(),ts:ts,m:$("fm").value,days:pd.slice(),from:a,to:b});save();
+  ["fn","fd","ft","ff","fto"].forEach(function(i){$(i).value=""});pt=[];pd=[];render();
+  show("fmsg","Добавлено: "+esc(n)+", "+ts.join(", ")+".");$("fmsg").className="msg"};
+$("mine").onclick=function(e){var id=e.target.getAttribute("data-id");if(!id)return;state.list=state.list.filter(function(m){return m.id!=id});save();render()};
+render();
+</script>
+</body>
+</html>
